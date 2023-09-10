@@ -23,7 +23,7 @@ map_pieces = {
     "B": "Bishop",
     "b": "bishop",
     "R": "Rook",
-    "r": "rook"
+    "r": "rook",
 }
 
 map_pieces_types = {
@@ -38,7 +38,7 @@ map_pieces_types = {
     "B": chess.BISHOP,
     "b": chess.BISHOP,
     "R": chess.ROOK,
-    "r": chess.ROOK
+    "r": chess.ROOK,
 }
 
 NORMAL_BOARD_SIZE = 8
@@ -46,23 +46,20 @@ LETTER_A_CODE = 97
 
 
 def set_orientation_board(a):
-    """
-
-    """
+    """ """
     global orientation_board
     orientation_board = a
 
 
 def get_orientation_board():
-    """
-
-    """
+    """ """
     global orientation_board
     return orientation_board
 
 
-def convert_int_pos_to_chess_square(pos_abs: int, pos_ord: int, screen: pygame.surface.Surface) -> Optional[
-    chess.Square]:
+def convert_int_pos_to_chess_square(
+    pos_abs: int, pos_ord: int, screen: pygame.surface.Surface
+) -> Optional[chess.Square]:
     """
     used to return the square pointed with the mouse
     piece_at(square: chess.Square) → Optional[chess.Piece]
@@ -76,17 +73,17 @@ def convert_int_pos_to_chess_square(pos_abs: int, pos_ord: int, screen: pygame.s
             return position
 
         mapping_table_letter = {
-            'a': 'h',
-            'b': 'g',
-            'c': 'f',
-            'd': 'e',
-            "e": 'd',
-            'f': 'c',
-            'g': 'b',
-            'h': 'a'
+            "a": "h",
+            "b": "g",
+            "c": "f",
+            "d": "e",
+            "e": "d",
+            "f": "c",
+            "g": "b",
+            "h": "a",
         }
-        #print("case d'origine:", position)
-        #print("case mappée : ",mapping_table_letter[position[0]] + str(8 - (int(position[1]) - 1)))
+        # print("case d'origine:", position)
+        # print("case mappée : ",mapping_table_letter[position[0]] + str(8 - (int(position[1]) - 1)))
         return mapping_table_letter[position[0]] + str(8 - (int(position[1]) - 1))
 
     dimension = min(screen.get_size())
@@ -96,11 +93,17 @@ def convert_int_pos_to_chess_square(pos_abs: int, pos_ord: int, screen: pygame.s
         letter = chr(pos_abs // square_size + LETTER_A_CODE)
         number = max(NORMAL_BOARD_SIZE - pos_ord // square_size, 1)
         letter_pos = str(letter) + str(number)
-        return parse_square(letter_pos) if orientation_board else parse_square(reverse_pos(letter_pos))
+        return (
+            parse_square(letter_pos)
+            if orientation_board
+            else parse_square(reverse_pos(letter_pos))
+        )
     return None
 
 
-def get_piece_legal_moves(piece: chess.Piece, board: Board, pos_piece: chess.Square) -> List[chess.Move]:
+def get_piece_legal_moves(
+    piece: chess.Piece, board: Board, pos_piece: chess.Square
+) -> List[chess.Move]:
     """
     print for a piece given the legal moves possible
     """
@@ -122,23 +125,43 @@ def get_piece_legal_moves(piece: chess.Piece, board: Board, pos_piece: chess.Squ
             try:
                 if _piece.color == chess.WHITE:
                     if condition_white:  # pawn haven't moved yet and can take piece
-                        mooves.append(chess.Move(_pos_piece, chess.SQUARES[_pos_piece + value]))
-                        mooves.append(chess.Move(_pos_piece, chess.SQUARES[_pos_piece + 2 * value]))
+                        mooves.append(
+                            chess.Move(_pos_piece, chess.SQUARES[_pos_piece + value])
+                        )
+                        mooves.append(
+                            chess.Move(
+                                _pos_piece, chess.SQUARES[_pos_piece + 2 * value]
+                            )
+                        )
                     else:
-                        mooves.append(chess.Move(_pos_piece, chess.SQUARES[_pos_piece + value]))
+                        mooves.append(
+                            chess.Move(_pos_piece, chess.SQUARES[_pos_piece + value])
+                        )
                 else:
                     if condition_black:  # pawn haven't moved yet
-                        mooves.append(chess.Move(_pos_piece, chess.SQUARES[_pos_piece - value]))
-                        mooves.append(chess.Move(_pos_piece, chess.SQUARES[_pos_piece - 2 * value]))
+                        mooves.append(
+                            chess.Move(_pos_piece, chess.SQUARES[_pos_piece - value])
+                        )
+                        mooves.append(
+                            chess.Move(
+                                _pos_piece, chess.SQUARES[_pos_piece - 2 * value]
+                            )
+                        )
                     else:
-                        mooves.append(chess.Move(_pos_piece, chess.SQUARES[_pos_piece - value]))
+                        mooves.append(
+                            chess.Move(_pos_piece, chess.SQUARES[_pos_piece - value])
+                        )
             except IndexError as e:
                 print("bad value :", e.args)
         elif _piece.piece_type == chess.KING:
             for pseudo_move in board.pseudo_legal_moves:
-                if board.has_kingside_castling_rights(_piece.color) and board.is_kingside_castling(pseudo_move):
+                if board.has_kingside_castling_rights(
+                    _piece.color
+                ) and board.is_kingside_castling(pseudo_move):
                     mooves.append(pseudo_move)
-                elif board.has_queenside_castling_rights(_piece.color) and board.is_queenside_castling(pseudo_move):
+                elif board.has_queenside_castling_rights(
+                    _piece.color
+                ) and board.is_queenside_castling(pseudo_move):
                     mooves.append(pseudo_move)
 
         for _square_attacked in get_attacked_squares_from_square(board, _pos_piece):
@@ -158,14 +181,18 @@ def get_piece_legal_moves(piece: chess.Piece, board: Board, pos_piece: chess.Squ
                 continue
         return legal_moves
 
-    return get_piece_legal_mooves(get_piece_mooves(piece, pos_piece)) if piece is not None else []
+    return (
+        get_piece_legal_mooves(get_piece_mooves(piece, pos_piece))
+        if piece is not None
+        else []
+    )
 
 
 def is_eq_mooves(move1: Move, move2: Move) -> bool:
     """
     compare the two moves using their uci notations
     """
-    return move1.uci() == move2.uci() or move1.uci() == move2.uci() + 'q'
+    return move1.uci() == move2.uci() or move1.uci() == move2.uci() + "q"
 
 
 def is_move_in_mooves(move: Move, tab: List[Move]) -> bool:
@@ -181,7 +208,9 @@ def is_move_in_mooves(move: Move, tab: List[Move]) -> bool:
     return False
 
 
-def get_attacked_squares_from_square(board: chess.Board, _square: chess.Square) -> chess.SquareSet:
+def get_attacked_squares_from_square(
+    board: chess.Board, _square: chess.Square
+) -> chess.SquareSet:
     """
     #return the set of square of attacked pieces
     """
@@ -214,32 +243,38 @@ def game_is_finished(board: chess.Board) -> bool:
     return board.is_variant_end()
 
 
-def find_ia_path(target: str, path='', n=0):
+def find_ia_path(target: str, path="", sep="/", n=0):
     """
     find recursively the path of the IA engine
     return path when found else nothing
     """
     global engine_path
 
-    if path == '':
+    if path == "":
         path = os.getcwd()
-    list_files_only = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
-    list_dir_only = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
+    list_files_only = [
+        f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))
+    ]
+    list_dir_only = [
+        d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))
+    ]
 
     for f in list_files_only:
         if f == target:
-            engine_path = path + "/" + f
+            engine_path = path + sep + f
             with open("./ia_setting.dchess", "w+") as file:
                 file.write(engine_path)
             return
 
     for d in list_dir_only:
-        _path = path + "/" + d
-        find_ia_path(target, path=_path, n=n + 1)
-        _path = ''
+        _path = path + sep + d
+        find_ia_path(target, path=_path, sep=sep, n=n + 1)
+        _path = ""
 
 
-def check_pokets_non_empty(board: chess.variant.CrazyhouseBoard, piece: chess.Piece) -> bool:
+def check_pokets_non_empty(
+    board: chess.variant.CrazyhouseBoard, piece: chess.Piece
+) -> bool:
     """
     #return if the piece type is contained in the pocket of the player given
     """

@@ -28,26 +28,25 @@ fen_text_box: pygame_menu.widgets.widget.textinput.TextInput
 
 
 def set_game_type(value, _game_type):
-    """
-    """
+    """ """
     global game_type, fen, fen_text_box
     # print("game type ", value[0][0])
     game_type = _game_type
     if game_type == 6:  # racing king
         fen = chess.variant.RacingKingsBoard.starting_fen
-        if 'fen_text_box' in globals():
+        if "fen_text_box" in globals():
             fen_text_box.set_value(fen)
     elif game_type == 7:  # Horde
         fen = chess.variant.HordeBoard.starting_fen
-        if 'fen_text_box' in globals():
+        if "fen_text_box" in globals():
             fen_text_box.set_value(fen)
-    elif game_type == 10: # Amazon
+    elif game_type == 10:  # Amazon
         fen = extra_variant.AmazonChessBoard.starting_fen
-        if 'fen_text_box' in globals():
+        if "fen_text_box" in globals():
             fen_text_box.set_value(fen)
     else:
         fen = STARTING_FEN
-        if 'fen_text_box' in globals():
+        if "fen_text_box" in globals():
             fen_text_box.set_value(fen)
 
 
@@ -55,21 +54,19 @@ def set_opponent_type(value, opponent):
     choice = value[0][0]
 
     global is_opponent_bot
-    if choice == 'play with bot':
+    if choice == "play with bot":
         is_opponent_bot = True
 
 
 def player_color(value, ballec):
     choice = value[0][0]
 
-    if not (choice == 'white'):
+    if not (choice == "white"):
         set_orientation_board(False)
 
 
 def set_difficulty(value, _difficulty):
-    """
-
-    """
+    """ """
     global difficulty
     difficulty = _difficulty
 
@@ -85,45 +82,57 @@ def start_the_game_menu(menu: pygame_menu.menu.Menu, screen: pygame.Surface):
 
     global fen, fen_text_box
     menu.clear()
-    menu.add.selector('GameType', [('Chess', 1),
-                                   ('Atomic', 2),
-                                   ('Antichess', 3),
-                                   ('Tree_check', 4),
-                                   ('King of the hill', 5),
-                                   ('Racing Kings', 6),
-                                   ('Horde', 7),
-                                   ('Crazyhouse', 8),
-                                   ('Chess960', 9),
-                                   ('Shatranj', 10)],
-                      onchange=set_game_type)
-    menu.add.selector('GameWith', [('play with friend', 1),
-                                   ('play with bot', 2)],
-                      onchange=set_opponent_type)
-    menu.add.selector('difficulty', [('None', 0),
-                                     ('Easiest', 2),
-                                     ('Easy', 4),
-                                     ('Standard', 6),
-                                     ('Medium', 8),
-                                     ('Medium+', 10),
-                                     ('Hard', 12),
-                                     ('Hard+', 14),
-                                     ('Hardest', 16),
-                                     ('Magnus', 18),
-                                     ('Impossible', 20)],
-                      onchange=set_difficulty)
-    menu.add.selector('Game Orientation', [('white', 1),
-                                           ('black', 1)],
-                      onchange=player_color)
-    fen_text_box = menu.add.text_input('From fen: ',
-                                       default=fen,
-                                       onchange=set_fen)
+    menu.add.selector(
+        "GameType",
+        [
+            ("Chess", 1),
+            ("Atomic", 2),
+            ("Antichess", 3),
+            ("Tree_check", 4),
+            ("King of the hill", 5),
+            ("Racing Kings", 6),
+            ("Horde", 7),
+            ("Crazyhouse", 8),
+            ("Chess960", 9),
+            ("Shatranj", 10),
+        ],
+        onchange=set_game_type,
+    )
+    menu.add.selector(
+        "GameWith",
+        [("play with friend", 1), ("play with bot", 2)],
+        onchange=set_opponent_type,
+    )
+    menu.add.selector(
+        "difficulty",
+        [
+            ("None", 0),
+            ("Easiest", 2),
+            ("Easy", 4),
+            ("Standard", 6),
+            ("Medium", 8),
+            ("Medium+", 10),
+            ("Hard", 12),
+            ("Hard+", 14),
+            ("Hardest", 16),
+            ("Magnus", 18),
+            ("Impossible", 20),
+        ],
+        onchange=set_difficulty,
+    )
+    menu.add.selector(
+        "Game Orientation", [("white", 1), ("black", 1)], onchange=player_color
+    )
+    fen_text_box = menu.add.text_input("From fen: ", default=fen, onchange=set_fen)
     menu.add.button("------------------------------------")
-    menu.add.button('Start Game', start_the_game, screen, menu)
+    menu.add.button("Start Game", start_the_game, screen, menu)
 
     # print(fen_text_box)
 
 
-def start_the_game(screen: pygame.Surface, menu: pygame_menu.menu.Menu, resume_fen=STARTING_FEN):
+def start_the_game(
+    screen: pygame.Surface, menu: pygame_menu.menu.Menu, resume_fen=STARTING_FEN
+):
     def init_board(variant_type: int, _fen, orientation: bool) -> chess.Board:
         """
         init the board with the param difficulty given. Default is 1 => standard
@@ -174,18 +183,26 @@ def start_the_game(screen: pygame.Surface, menu: pygame_menu.menu.Menu, resume_f
                 return chess.variant.KingOfTheHillBoard(fen=STARTING_FEN)
             elif variant_type == 6:
                 rk = True
-                return chess.variant.RacingKingsBoard(fen=chess.variant.RacingKingsBoard.starting_fen)
+                return chess.variant.RacingKingsBoard(
+                    fen=chess.variant.RacingKingsBoard.starting_fen
+                )
             elif variant_type == 7:
-                return chess.variant.HordeBoard(fen=chess.variant.HordeBoard.starting_fen)
+                return chess.variant.HordeBoard(
+                    fen=chess.variant.HordeBoard.starting_fen
+                )
             elif variant_type == 8:
                 ch = True
-                return chess.variant.CrazyhouseBoard(fen=chess.variant.CrazyhouseBoard.starting_fen)
+                return chess.variant.CrazyhouseBoard(
+                    fen=chess.variant.CrazyhouseBoard.starting_fen
+                )
             elif variant_type == 9:
                 b = Board(chess960=True)
                 b.set_chess960_pos(random.randint(0, 959))
                 return b
             elif variant_type == 10:
-                return extra_variant.AmazonChessBoard(fen=extra_variant.AmazonChessBoard.starting_fen)
+                return extra_variant.AmazonChessBoard(
+                    fen=extra_variant.AmazonChessBoard.starting_fen
+                )
             else:
                 return Board(fen=_fen)
 
@@ -196,11 +213,25 @@ def start_the_game(screen: pygame.Surface, menu: pygame_menu.menu.Menu, resume_f
     ch = False
     menu.clear()
     screen.fill(WHITE)
-    chess_b = init_board(game_type, _fen=fen, orientation=get_orientation_board()) if not is_game_resumed else init_board(game_type, _fen=resume_fen, orientation=get_orientation_board())
+    chess_b = (
+        init_board(game_type, _fen=fen, orientation=get_orientation_board())
+        if not is_game_resumed
+        else init_board(game_type, _fen=resume_fen, orientation=get_orientation_board())
+    )
     while not (chess_b.is_game_over() or is_game_over_special_variant):
         try:
-            manage_events(chess_b, screen, is_opponent_bot, get_orientation_board(), difficulty)
-            show(new_fen=chess_b.fen(), board=chess_b, screen=screen, orientation_white=get_orientation_board(), koth=koth, rk=rk, ch=ch)
+            manage_events(
+                chess_b, screen, is_opponent_bot, get_orientation_board(), difficulty
+            )
+            show(
+                new_fen=chess_b.fen(),
+                board=chess_b,
+                screen=screen,
+                orientation_white=get_orientation_board(),
+                koth=koth,
+                rk=rk,
+                ch=ch,
+            )
             pygame.display.update()
         except ChessException:
             screen.fill(WHITE)
@@ -219,9 +250,7 @@ def start_the_game(screen: pygame.Surface, menu: pygame_menu.menu.Menu, resume_f
 
 
 def draw_menu_home_page():
-    """
-
-    """
+    """ """
     global DISPLAY_SURF, fen
     fen = STARTING_FEN
 
@@ -229,16 +258,17 @@ def draw_menu_home_page():
         DISPLAY_SURF = pygame.display.set_mode(pyautogui.size(), pygame.RESIZABLE)
         DISPLAY_SURF.fill(WHITE)
     width, height = DISPLAY_SURF.get_size()
-    menu = pygame_menu.Menu('Welcome', width, height,
-                            theme=pygame_menu.themes.THEME_BLUE)
+    menu = pygame_menu.Menu(
+        "Welcome", width, height, theme=pygame_menu.themes.THEME_BLUE
+    )
 
     menu.add.vertical_margin(20)
     menu.add.image("./pictures/acceuil.png")
     # menu.add.color_input("test", 'rgb')
     # menu.add.text_input('Name :', default='Un jeu par Nathan DAUNOIS')
     # menu.add.selector('Difficulty :', [('Hard', 1), ('Easy', 2)], onchange=set_difficulty)
-    menu.add.button('Play', start_the_game_menu, menu, DISPLAY_SURF)
-    menu.add.button('Quit', pygame_menu.events.EXIT)
+    menu.add.button("Play", start_the_game_menu, menu, DISPLAY_SURF)
+    menu.add.button("Quit", pygame_menu.events.EXIT)
     menu.mainloop(DISPLAY_SURF)
 
 
@@ -248,17 +278,16 @@ def print_the_in_game_menu(screen: pygame.surface.Surface, actual_fen: str):
     other stuffs
     """
     width, height = screen.get_size()
-    menu = pygame_menu.Menu('Welcome', width, height,
-                            theme=pygame_menu.themes.THEME_BLUE)
-    menu.add.button('Resume', resume_game, screen, menu, actual_fen)
-    menu.add.button('Quit Game', quit_game, menu)
+    menu = pygame_menu.Menu(
+        "Welcome", width, height, theme=pygame_menu.themes.THEME_BLUE
+    )
+    menu.add.button("Resume", resume_game, screen, menu, actual_fen)
+    menu.add.button("Quit Game", quit_game, menu)
     menu.mainloop(screen)
 
 
 def resume_game(screen: pygame.Surface, menu: pygame_menu.menu.Menu, actual_fen: str):
-    """
-
-    """
+    """ """
     global is_game_resumed
     menu.clear()
     is_game_resumed = True
@@ -266,9 +295,7 @@ def resume_game(screen: pygame.Surface, menu: pygame_menu.menu.Menu, actual_fen:
 
 
 def quit_game(menu: pygame_menu.menu.Menu):
-    """
-
-    """
+    """ """
     global is_game_resumed
     menu.clear()
     is_game_resumed = False
