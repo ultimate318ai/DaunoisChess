@@ -29,7 +29,7 @@ piece_on_mouse_cursor: chess.Piece
 total_moves = []
 counter_mooves = 0
 engine: chess.engine.SimpleEngine
-variant_engine: stockfish.Stockfish if stockfish_loaded else None
+variant_engine: stockfish.Stockfish = stockfish.Stockfish if stockfish_loaded else None
 is_game_over_special_variant = False
 
 is_turn_IA = False
@@ -66,8 +66,11 @@ def clear_globals_events():
     is_stockfish_init = False
 
 
-def init_stockfish_engine(**kargs):
-    """ """
+def init_stockfish_engine(**kwargs):
+    """
+    initialise stockfish using engine chess.engine.SimpleEngine.
+    :see stockfish documentation for extras params.
+    """
     global engine
     find_ia_path(ia_exe_name, sep=ia_exe_file_path_sep)
     with open("./ia_setting.dchess", "r") as file_path_ia:
@@ -77,7 +80,7 @@ def init_stockfish_engine(**kargs):
             except NameError:
                 continue
 
-    for key, value in kargs.items():
+    for key, value in kwargs.items():
         if key in stockfish_settings.keys():
             stockfish_settings[key] = value
         elif key == "difficulty":
@@ -86,12 +89,18 @@ def init_stockfish_engine(**kargs):
     engine.configure(options=stockfish_settings)
 
 
-def init_variant_engine(**kargs):
-    """ """
+def init_variant_engine(**kwargs):
+    """
+    initialise stockfish variant engine chess.engine.SimpleEngine.
+    :see stockfish documentation for extras params.
+    """
     global variant_engine
+    if not stockfish:
+        raise ChessException("stockfish is not installed, please check")
+
     find_ia_path("stockfish")
     with open("./ia_setting.dchess", "r") as file_path_ia:
-        for key, value in kargs.items():
+        for key, value in kwargs.items():
             if key in stockfish_variant_settings.keys():
                 stockfish_variant_settings[key] = value
             elif key == "difficulty":
@@ -113,7 +122,7 @@ def manage_events(
     difficulty=20,
 ):
     """
-    function used for all the events of pygame
+    function used for all the events of pygame.
     """
     global selected_piece, counter_mooves, total_moves, is_turn_IA, is_stockfish_init, selected_piece_case, piece_on_mouse_cursor, variant_engine, is_game_over_special_variant, stockfish_loaded
 
@@ -123,14 +132,15 @@ def manage_events(
             if not stockfish_loaded:
                 raise ChessException()
             init_variant_engine(difficulty=difficulty)
-            variant_engine.set_fen_position(board.fen())
+            if variant_engine:
+                variant_engine.set_fen_position(board.fen())
         else:
             pass
             init_stockfish_engine(difficulty=difficulty)
         is_stockfish_init = True
 
     if is_turn_IA:
-        if is_board_extra_variant(board):
+        if is_board_extra_variant(board) and variant_engine:
             m = variant_engine.get_best_move()
             if m is None:
                 is_game_over_special_variant = True

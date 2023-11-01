@@ -17,7 +17,9 @@ class AmazonChessBoard(Board):
     tbw_magic = None
     tbz_magic = None
 
-    def __init__(self, fen: Optional[str] = starting_fen, chess960: bool = False) -> None:
+    def __init__(
+        self, fen: Optional[str] = starting_fen, chess960: bool = False
+    ) -> None:
         self.occupied = chess.BB_E1 | chess.BB_RANK_7 | chess.BB_RANK_8
         self.kings = chess.BB_E8
         self.queens = chess.BB_D8
@@ -38,14 +40,19 @@ class AmazonChessBoard(Board):
 
     def is_check(self) -> bool:
         """Tests if the current side to move is in check."""
-        return bool(self.checkers_mask()) or self.is_attacked_by(chess.BLACK, self._amazon(chess.WHITE))
+        return bool(self.checkers_mask()) or self.is_attacked_by(
+            chess.BLACK, self._amazon(chess.WHITE)
+        )
 
     def is_legal(self, move: chess.Move) -> bool:
-        return not self.is_variant_end() and self.is_pseudo_legal(move) and not self.is_into_check(move)
+        return (
+            not self.is_variant_end()
+            and self.is_pseudo_legal(move)
+            and not self.is_into_check(move)
+        )
 
     def is_into_check(self, move: Move) -> bool:
-
-        if not self.turn: # Black have usual rule
+        if not self.turn:  # Black have usual rule
             return super().is_into_check(move)
 
         amazon = self._amazon(self.turn)
@@ -57,12 +64,14 @@ class AmazonChessBoard(Board):
         if checkers and checkers & move.to_square:
             return True
 
-        print(move.uci(),self.is_attacked_by(False, move.to_square))
+        print(move.uci(), self.is_attacked_by(False, move.to_square))
         return self.is_attacked_by(not self.turn, move.to_square)
 
     def checkers_mask(self) -> Bitboard:
         king = self.king(self.turn)
-        return chess.BB_EMPTY if king is None else self.attackers_mask(not self.turn, king)
+        return (
+            chess.BB_EMPTY if king is None else self.attackers_mask(not self.turn, king)
+        )
 
     def piece_type_at(self, square: Square) -> Optional[PieceType]:
         """Gets the piece type at the given square."""
@@ -117,11 +126,27 @@ class AmazonChessBoard(Board):
             return chess.BB_KING_ATTACKS[square]
         else:
             attacks = 0
-            if bb_square & self.bishops or bb_square & self.queens or bb_square & self.amazon:
-                attacks = chess.BB_DIAG_ATTACKS[square][chess.BB_DIAG_MASKS[square] & self.occupied]
-            if bb_square & self.rooks or bb_square & self.queens or bb_square & self.amazon:
-                attacks |= (chess.BB_RANK_ATTACKS[square][chess.BB_RANK_MASKS[square] & self.occupied] |
-                            chess.BB_FILE_ATTACKS[square][chess.BB_FILE_MASKS[square] & self.occupied])
+            if (
+                bb_square & self.bishops
+                or bb_square & self.queens
+                or bb_square & self.amazon
+            ):
+                attacks = chess.BB_DIAG_ATTACKS[square][
+                    chess.BB_DIAG_MASKS[square] & self.occupied
+                ]
+            if (
+                bb_square & self.rooks
+                or bb_square & self.queens
+                or bb_square & self.amazon
+            ):
+                attacks |= (
+                    chess.BB_RANK_ATTACKS[square][
+                        chess.BB_RANK_MASKS[square] & self.occupied
+                    ]
+                    | chess.BB_FILE_ATTACKS[square][
+                        chess.BB_FILE_MASKS[square] & self.occupied
+                    ]
+                )
             if bb_square & self.amazon:
                 attacks |= chess.BB_KNIGHT_ATTACKS[square]
             return attacks
@@ -137,7 +162,9 @@ class AmazonChessBoard(Board):
         """
         return chess.SquareSet(self.attacks_mask(square))
 
-    def _attackers_mask(self, color: Color, square: Square, occupied: Bitboard) -> Bitboard:
+    def _attackers_mask(
+        self, color: Color, square: Square, occupied: Bitboard
+    ) -> Bitboard:
         rank_pieces = chess.BB_RANK_MASKS[square] & occupied
         file_pieces = chess.BB_FILE_MASKS[square] & occupied
         diag_pieces = chess.BB_DIAG_MASKS[square] & occupied
@@ -147,16 +174,17 @@ class AmazonChessBoard(Board):
         amazon = self.amazon
 
         attackers = (
-                (chess.BB_KING_ATTACKS[square] & self.kings) |
-                (chess.BB_KNIGHT_ATTACKS[square] & self.knights) |
-                (chess.BB_KNIGHT_ATTACKS[square] & amazon) |
-                (chess.BB_RANK_ATTACKS[square][rank_pieces] & queens_and_rooks) |
-                (chess.BB_FILE_ATTACKS[square][file_pieces] & queens_and_rooks) |
-                (chess.BB_DIAG_ATTACKS[square][diag_pieces] & queens_and_bishops) |
-                (chess.BB_RANK_ATTACKS[square][rank_pieces] & amazon) |
-                (chess.BB_FILE_ATTACKS[square][file_pieces] & amazon) |
-                (chess.BB_DIAG_ATTACKS[square][diag_pieces] & amazon) |
-                (chess.BB_PAWN_ATTACKS[not color][square] & self.pawns))
+            (chess.BB_KING_ATTACKS[square] & self.kings)
+            | (chess.BB_KNIGHT_ATTACKS[square] & self.knights)
+            | (chess.BB_KNIGHT_ATTACKS[square] & amazon)
+            | (chess.BB_RANK_ATTACKS[square][rank_pieces] & queens_and_rooks)
+            | (chess.BB_FILE_ATTACKS[square][file_pieces] & queens_and_rooks)
+            | (chess.BB_DIAG_ATTACKS[square][diag_pieces] & queens_and_bishops)
+            | (chess.BB_RANK_ATTACKS[square][rank_pieces] & amazon)
+            | (chess.BB_FILE_ATTACKS[square][file_pieces] & amazon)
+            | (chess.BB_DIAG_ATTACKS[square][diag_pieces] & amazon)
+            | (chess.BB_PAWN_ATTACKS[not color][square] & self.pawns)
+        )
 
         return attackers & self.occupied_co[color]
 
@@ -189,15 +217,19 @@ class AmazonChessBoard(Board):
 
         square_mask = chess.BB_SQUARES[square]
 
-        for attacks, sliders in [(chess.BB_FILE_ATTACKS, self.rooks | self.queens | self.amazon),
-                                 (chess.BB_RANK_ATTACKS, self.rooks | self.queens | self.amazon),
-                                 (chess.BB_DIAG_ATTACKS, self.bishops | self.queens | self.amazon),
-                                 ]:
+        for attacks, sliders in [
+            (chess.BB_FILE_ATTACKS, self.rooks | self.queens | self.amazon),
+            (chess.BB_RANK_ATTACKS, self.rooks | self.queens | self.amazon),
+            (chess.BB_DIAG_ATTACKS, self.bishops | self.queens | self.amazon),
+        ]:
             rays = attacks[king][0]
             if rays & square_mask:
                 snipers = rays & sliders & self.occupied_co[not color]
                 for sniper in scan_reversed(snipers):
-                    if between(sniper, king) & (self.occupied | square_mask) == square_mask:
+                    if (
+                        between(sniper, king) & (self.occupied | square_mask)
+                        == square_mask
+                    ):
                         return ray(king, sniper)
 
                 break
@@ -277,7 +309,13 @@ class AmazonChessBoard(Board):
         piece_type = self._remove_piece_at(square)
         return Piece(piece_type, color) if piece_type else None
 
-    def _set_piece_at(self, square: Square, piece_type: PieceType, color: Color, promoted: bool = False) -> None:
+    def _set_piece_at(
+        self,
+        square: Square,
+        piece_type: PieceType,
+        color: Color,
+        promoted: bool = False,
+    ) -> None:
         self._remove_piece_at(square)
 
         mask = chess.BB_SQUARES[square]
@@ -305,7 +343,9 @@ class AmazonChessBoard(Board):
         if promoted:
             self.promoted ^= mask
 
-    def set_piece_at(self, square: Square, piece: Optional[Piece], promoted: bool = False) -> None:
+    def set_piece_at(
+        self, square: Square, piece: Optional[Piece], promoted: bool = False
+    ) -> None:
         """
         Sets a piece at the given square.
 
@@ -340,7 +380,9 @@ class AmazonChessBoard(Board):
         status = super().status()
         if self.is_check():
             status |= chess.STATUS_OPPOSITE_CHECK | chess.STATUS_TOO_MANY_CHECKERS
-        if self.turn == chess.BLACK and all(self.occupied_co[co] & self.kings & chess.BB_RANK_8 for co in chess.COLORS):
+        if self.turn == chess.BLACK and all(
+            self.occupied_co[co] & self.kings & chess.BB_RANK_8 for co in chess.COLORS
+        ):
             status |= chess.STATUS_RACE_OVER
         if self.pawns:
             status |= chess.STATUS_RACE_MATERIAL

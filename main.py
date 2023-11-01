@@ -8,5 +8,5 @@ def main():
     draw_menu_home_page()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

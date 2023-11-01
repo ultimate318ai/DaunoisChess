@@ -1,3 +1,8 @@
+"""
+Custom exception used in chess context.
+"""
+
+
 class ChessException(Exception):
     def __init__(self, *args):
         super().__init__(*args)

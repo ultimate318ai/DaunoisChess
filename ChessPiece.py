@@ -1,8 +1,7 @@
 """
-class used for Piece storage
+Module used for Piece storage.
 """
 import chess
-import pygame
 from typing import Tuple
 
 id_piece_num = 0
@@ -10,8 +9,9 @@ id_piece_num = 0
 
 class Position:
     """
-
+    Chess position representation in 2-dimensions.
     """
+
     def __init__(self, x: int, y: int) -> None:
         self.abs = x
         self.ord = y
@@ -22,12 +22,12 @@ class Position:
     def __add__(self, other):
         if not isinstance(other, Position):
             return self
-        return Position(self.abs+other.abs, self.ord+other.ord)
+        return Position(self.abs + other.abs, self.ord + other.ord)
 
     def __sub__(self, other):
         if not isinstance(other, Position):
             return self
-        return Position(self.abs-other.abs, self.ord-other.ord)
+        return Position(self.abs - other.abs, self.ord - other.ord)
 
     def __mul__(self, other):
         if not isinstance(other, Position):
@@ -49,11 +49,18 @@ class Position:
 
 class ChessPiece:
     """
-
+    Chess piece class.
     """
 
-    def __init__(self, name: str,  surface, square: chess.Square,
-                 is_drawable=True, _type=None, color=None):
+    def __init__(
+        self,
+        name: str,
+        surface,
+        square: chess.Square,
+        is_drawable=True,
+        _type=None,
+        color=None,
+    ):
         global id_piece_num
         self.id = id_piece_num
         id_piece_num += 1
@@ -65,10 +72,16 @@ class ChessPiece:
         self.color = color
 
     def __str__(self) -> str:
-        return "({0}, {1}, {2}, {3}, {4})".format(self.id, self.name, self.square, self.type, self.color)
+        return "({0}, {1}, {2}, {3}, {4})".format(
+            self.id, self.name, self.square, self.type, self.color
+        )
 
     def __eq__(self, other):
-        return isinstance(other, ChessPiece) and other.id == self.id and other.name == self.name
+        return (
+            isinstance(other, ChessPiece)
+            and other.id == self.id
+            and other.name == self.name
+        )
 
     def draw(self, screen, row, col):
         if self.is_drawable:
@@ -77,8 +90,10 @@ class ChessPiece:
 
 class ChessBoard(ChessPiece):
     """
-
+    Chess board class for drawing purpose, this has inheritance from ChessPiece
+    in order to draw it after.
     """
+
     def __init__(self, name: str, surface, is_drawable=True):
         super(ChessBoard, self).__init__(name, surface, is_drawable)
 
