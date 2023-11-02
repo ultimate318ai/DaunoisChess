@@ -94,7 +94,7 @@ def start_the_game_menu(menu: pygame_menu.menu.Menu, screen: pygame.Surface):
             ("Horde", 7),
             ("Crazyhouse", 8),
             ("Chess960", 9),
-            ("Shatranj", 10),
+            # ("Shatranj", 10),
         ],
         onchange=set_game_type,
     )
@@ -199,10 +199,10 @@ def start_the_game(
                 b = Board(chess960=True)
                 b.set_chess960_pos(random.randint(0, 959))
                 return b
-            elif variant_type == 10:
-                return extra_variant.AmazonChessBoard(
-                    fen=extra_variant.AmazonChessBoard.starting_fen
-                )
+            # elif variant_type == 10: #Not working Anymore
+            #     return extra_variant.AmazonChessBoard(
+            #         fen=extra_variant.AmazonChessBoard.starting_fen
+            #     )
             else:
                 return Board(fen=_fen)
 

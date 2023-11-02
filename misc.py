@@ -224,10 +224,12 @@ def is_square_promotion_square(_square: chess.Square) -> bool:
     return 0 <= _square <= 7 or 56 <= _square <= 63
 
 
-def is_move_a_promotion(piece: chess.Piece, move: chess.Move) -> bool:
+def is_move_a_promotion(piece: chess.Piece | None, move: chess.Move) -> bool:
     """
     #return is a chess move might be a promotion one
     """
+    if not piece:
+        return False
     return piece.piece_type == chess.PAWN and is_square_promotion_square(move.to_square)
 
 

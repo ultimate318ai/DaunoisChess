@@ -16,20 +16,17 @@ from display.displayGame import (
 import chess.engine
 from ChessException import ChessException
 
-stockfish_loaded = True
-try:
-    import stockfish
-except ImportError:
-    stockfish = None
-    stockfish_loaded = False
 
-selected_piece: chess.Piece
+import stockfish
+
+
+selected_piece: chess.Piece | None
 selected_piece_case: chess.Square
-piece_on_mouse_cursor: chess.Piece
+piece_on_mouse_cursor: chess.Piece | None
 total_moves = []
 counter_mooves = 0
 engine: chess.engine.SimpleEngine
-variant_engine: stockfish.Stockfish = stockfish.Stockfish if stockfish_loaded else None
+variant_engine: stockfish.Stockfish
 is_game_over_special_variant = False
 
 is_turn_IA = False
@@ -124,13 +121,11 @@ def manage_events(
     """
     function used for all the events of pygame.
     """
-    global selected_piece, counter_mooves, total_moves, is_turn_IA, is_stockfish_init, selected_piece_case, piece_on_mouse_cursor, variant_engine, is_game_over_special_variant, stockfish_loaded
+    global selected_piece, counter_mooves, total_moves, is_turn_IA, is_stockfish_init, selected_piece_case, piece_on_mouse_cursor, variant_engine, is_game_over_special_variant
 
     if not is_stockfish_init:
         is_turn_IA = is_opponent_bot and not is_orientation_board_white
         if is_board_extra_variant(board):
-            if not stockfish_loaded:
-                raise ChessException()
             init_variant_engine(difficulty=difficulty)
             if variant_engine:
                 variant_engine.set_fen_position(board.fen())
@@ -150,19 +145,23 @@ def manage_events(
         else:
             ia_play = engine.play(board, limit=chess.engine.Limit(0.3)).move
 
+        if ia_play is None:
+            raise ChessException("IA has no move to play and game is not over")
+
         selected_piece = board.piece_at(ia_play.from_square)
-        selected_piece_case = ia_play.to_square
-        if isinstance(board, chess.variant.CrazyhouseBoard):
-            if board.is_capture(ia_play):
-                piece_taken = board.piece_at(ia_play.to_square)
-                board.pockets[selected_piece.color].add(piece_taken)
-        add_move_in_algebric_list(ia_play, board)
-        board.push(ia_play)
-        is_turn_IA = False
-        total_moves.append(ia_play)
-        affect_last_mooves(ia_play)
-        counter_mooves += 1
-        affect_mooves([])
+        if selected_piece:
+            selected_piece_case = ia_play.to_square
+            if isinstance(board, chess.variant.CrazyhouseBoard):
+                if board.is_capture(ia_play):
+                    piece_taken = board.piece_at(ia_play.to_square)
+                    board.pockets[selected_piece.color].add(piece_taken)
+            add_move_in_algebric_list(ia_play, board)
+            board.push(ia_play)
+            is_turn_IA = False
+            total_moves.append(ia_play)
+            affect_last_mooves(ia_play)
+            counter_mooves += 1
+            affect_mooves([])
         return
 
     events = pygame.event.get()
@@ -367,10 +366,7 @@ def manage_events(
                                             )
                                     add_move_in_algebric_list(pseudo_move, board)
                                     board.push(pseudo_move)
-                                    if (
-                                        "variant_engine" in globals()
-                                        and variant_engine is not None
-                                    ):
+                                    if "variant_engine" in globals():
                                         m = variant_engine.get_best_move()
                                         if m is None:
                                             is_game_over_special_variant = (

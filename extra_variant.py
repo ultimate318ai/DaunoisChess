@@ -2,6 +2,7 @@ from chess import *
 import chess
 
 
+# Deprecated : as some part of the implementation was done in chess library and too badly lost :(.
 class AmazonChessBoard(Board):
     """
     #see https://en.wikipedia.org/wiki/Maharajah_and_the_Sepoys
